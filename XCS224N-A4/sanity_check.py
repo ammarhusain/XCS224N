@@ -60,6 +60,9 @@ def generate_outputs(model, source, target, vocab):
     source_padded = model.vocab.src.to_input_tensor(source, device=model.device)
     target_padded = model.vocab.tgt.to_input_tensor(target, device=model.device)
 
+    print("target", target)
+    print("target_p", target_padded)
+
     # Run the model forward
     with torch.no_grad():
         enc_hiddens, dec_init_state = model.encode(source_padded, source_lengths)
@@ -84,7 +87,9 @@ def question_1d_sanity_check(model, src_sents, tgt_sents, vocab):
     reinitialize_layers(model)
     source_lengths = [len(s) for s in src_sents]
     source_padded = model.vocab.src.to_input_tensor(src_sents, device=model.device)
-
+    print("source", src_sents)
+    print("source_p", source_padded)
+    print("lgths", source_lengths)
     # Load Outputs
     enc_hiddens_target = torch.load('./sanity_check_en_es_data/enc_hiddens.pkl')
     dec_init_state_target = torch.load('./sanity_check_en_es_data/dec_init_state.pkl')
