@@ -1,0 +1,3 @@
+To generate Emacs TAGS:
+find . -type f -name '*.py' | xargs etags
+(https://stackoverflow.com/questions/3501040/how-can-i-use-meta-dot-m-in-python-with-emacs)

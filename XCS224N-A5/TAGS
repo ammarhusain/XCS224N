@@ -1,0 +1,80 @@
+
+run.py,160
+def evaluate_ppl(58,2727
+def compute_corpus_level_bleu_score(88,3653
+def train(101,4320
+def decode(258,11301
+def beam_search(293,12884
+def main(316,13966
+
+nmt_model.py,285
+class NMT(20,463
+    def __init__(26,668
+    def forward(59,2270
+    def encode(122,5499
+    def decode(149,7349
+    def step(190,9508
+    def generate_sent_masks(236,12405
+    def beam_search(252,13289
+    def device(370,19160
+    def load(376,19352
+    def save(387,19777
+
+utils.py,99
+def pad_sents_char(12,172
+def pad_sents(43,1624
+def read_corpus(67,2457
+def batch_iter(84,3003
+
+sanity_check.py,340
+class DummyVocab(39,656
+    def __init__(40,676
+def question_1a_sanity_check(48,1013
+def question_1b_sanity_check(82,2915
+def question_1f_sanity_check(104,3861
+def question_2a_sanity_check(124,4648
+def question_2b_sanity_check(153,6286
+def question_2c_sanity_check(178,7542
+def question_2d_sanity_check(193,8132
+def main(211,8962
+
+vocab.py,585
+class VocabEntry(24,638
+    def __init__(28,762
+    def __getitem__(61,2135
+    def __contains__(69,2433
+    def __setitem__(76,2676
+    def __len__(81,2841
+    def __repr__(87,3019
+    def id2word(93,3191
+    def add(100,3404
+    def words2charindices(112,3808
+    def words2indices(129,4537
+    def indices2words(136,4844
+    def to_input_tensor_char(143,5104
+    def to_input_tensor(160,5779
+    def from_corpus(175,6438
+class Vocab(193,7364
+    def __init__(196,7447
+    def build(205,7770
+    def save(222,8568
+    def load(229,8847
+    def __repr__(240,9243
+
+model_embeddings.py,80
+class ModelEmbeddings(17,352
+    def __init__(22,470
+    def forward(39,1054
+
+char_decoder.py,135
+class CharDecoder(7,84
+    def __init__(8,114
+    def forward(32,1324
+    def train_forward(48,2034
+    def decode_greedy(65,2974
+
+highway.py,0
+
+__init__.py,0
+
+cnn.py,0

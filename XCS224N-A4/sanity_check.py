@@ -38,7 +38,8 @@ def reinitialize_layers(model):
             if m.bias is not None:
                 m.bias.data.fill_(0.1)
         elif type(m) == nn.Embedding:
-            m.weight.data.fill_(0.15)
+            #m.weight.data.fill_(0.15)
+            m.weight.data.uniform_(-5,5)
         elif type(m) == nn.Dropout:
             nn.Dropout(DROPOUT_RATE)
 
@@ -130,7 +131,7 @@ def question_1e_sanity_check(model, src_sents, tgt_sents, vocab):
 
     # Load Outputs
     combined_outputs_target = torch.load('./sanity_check_en_es_data/combined_outputs.pkl')
-
+    print("s_c_copstgt ", combined_outputs_target.size())
     # Configure for Testing
     reinitialize_layers(model)
     COUNTER = [0]
@@ -142,13 +143,16 @@ def question_1e_sanity_check(model, src_sents, tgt_sents, vocab):
         return dec_state, o_t, None
 
     model.step = stepFunction
-
+    print("target_padded\n",target_padded)
     # Run Tests
     with torch.no_grad():
         combined_outputs_pred = model.decode(enc_hiddens, enc_masks, dec_init_state, target_padded)
     assert (np.allclose(combined_outputs_pred.numpy(),
                         combined_outputs_target.numpy())), "combined_outputs is incorrect: it should be:\n {} but is:\n{}".format(
         combined_outputs_target, combined_outputs_pred)
+    print("s_c_cops ",combined_outputs_pred.size())
+
+
     print("combined_outputs Sanity Checks Passed!")
     print("-" * 80)
     print("All Sanity Checks Passed for Question 1e: Decode!")

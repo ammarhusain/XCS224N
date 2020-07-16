@@ -166,7 +166,6 @@ class NMT(nn.Module):
         ###     Tensor Permute:
         ###         https://pytorch.org/docs/stable/tensors.html#torch.Tensor.permute
         X = self.model_embeddings.source(source_padded)
-
         packed_X = torch.nn.utils.rnn.pack_padded_sequence(X, source_lengths)
         packaked_output, (last_hidden, last_cell) = self.encoder(packed_X)
         enc_hiddens, n_l = torch.nn.utils.rnn.pad_packed_sequence(packaked_output, batch_first=True)
@@ -248,13 +247,12 @@ class NMT(nn.Module):
         Y = self.model_embeddings.target(target_padded)
         Y_ts = torch.split(Y, 1, dim=0)
         for Y_t in Y_ts:
-          Ybar_t = torch.cat((torch.squeeze(Y_t), o_prev), dim=1)
-          dec_state_t, o_t, att_t = self.step(Ybar_t, dec_state, enc_hiddens, enc_hiddens_proj, enc_masks)
+          Ybar_t = torch.cat((torch.squeeze(Y_t, dim=0), o_prev), dim=1)
+          dec_state, o_t, att_t = self.step(Ybar_t, dec_state, enc_hiddens, enc_hiddens_proj, enc_masks)
           combined_outputs.append(o_t)
           o_prev = o_t
         combined_outputs = torch.stack(combined_outputs)
         ### END YOUR CODE
-
         return combined_outputs
 
     def step(self, Ybar_t: torch.Tensor,
@@ -308,16 +306,10 @@ class NMT(nn.Module):
         ###         https://pytorch.org/docs/stable/torch.html#torch.unsqueeze
         ###     Tensor Squeeze:
         ###         https://pytorch.org/docs/stable/torch.html#torch.squeeze
-        #print("ybs ", Ybar_t.size())
-        #print("dcs0 ", dec_state[0].size())
-        #print("dcs1 ", dec_state[1].size())
         dec_hidden, dec_cell = self.decoder(Ybar_t, dec_state)
         dec_state = (dec_hidden, dec_cell)
-        w_att_h_enc = torch.transpose(self.att_projection(enc_hiddens),1,2) # creates a tensor b,h,max_len
-        #print("etr ", torch.bmm(torch.unsqueeze(dec_hidden,dim=1), w_att_h_enc).size())
-        e_t = torch.squeeze(torch.bmm(torch.unsqueeze(dec_hidden,dim=1), w_att_h_enc), dim=1)
+        e_t = torch.squeeze(torch.bmm(enc_hiddens_proj, torch.unsqueeze(dec_hidden,dim=2)), dim=2)
         ### END YOUR CODE
-
         # Set e_t to -inf where enc_masks has 1
         if enc_masks is not None:
             e_t.data.masked_fill_(enc_masks.bool(), -float('inf'))
@@ -349,19 +341,16 @@ class NMT(nn.Module):
         ###         https://pytorch.org/docs/stable/torch.html#torch.cat
         ###     Tanh:
         ###         https://pytorch.org/docs/stable/torch.html#torch.tanh
-        #print("ets ", e_t.size())
-        #print(e_t)
+
         softmax_layer = nn.Softmax(dim=1)
         alpha_t = softmax_layer(e_t)
-        #print("ats ", alpha_t.size())
         attention_t = torch.squeeze(torch.bmm(torch.unsqueeze(alpha_t, dim=1), enc_hiddens), dim=1)
-        #print("atts ", attention_t.size())
-        #print("dchs ", dec_hidden.size())
+
         U_t = torch.cat((dec_hidden, attention_t), dim=1)
+        #U_t = torch.cat((attention_t, dec_hidden), dim=1)
         V_t = self.combined_output_projection(U_t)
         O_t = self.dropout(torch.tanh(V_t))
         ### END YOUR CODE
-
         combined_output = O_t
         return dec_state, combined_output, e_t
 
